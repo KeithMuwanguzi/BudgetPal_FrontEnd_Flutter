@@ -1,14 +1,12 @@
-import 'package:budgetpal/features/auth/signup.dart';
-import 'package:budgetpal/features/home/home.dart';
+import 'package:budgetpal/features/auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class SignUpPage extends StatelessWidget {
+  const SignUpPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Get the size of the screen for responsiveness
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -30,9 +28,9 @@ class LoginPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SizedBox(height: size.height * 0.1),
+                  SizedBox(height: size.height * 0.08),
                   Text(
-                    'BudgetPal',
+                    'Create Account',
                     style: GoogleFonts.lato(
                       fontSize: size.width * 0.08,
                       fontWeight: FontWeight.bold,
@@ -42,20 +40,38 @@ class LoginPage extends StatelessWidget {
                   ),
                   SizedBox(height: size.height * 0.02),
                   Text(
-                    'Login to your account',
+                    'Join BudgetPal and take control of your finances',
                     style: GoogleFonts.lato(
-                      fontSize: size.width * 0.045,
+                      fontSize: size.width * 0.04,
                       color: Colors.white70,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: size.height * 0.08),
+                  SizedBox(height: size.height * 0.06),
+                  _buildTextField(
+                    icon: Icons.person,
+                    hintText: 'Full Name',
+                    size: size,
+                  ),
+                  SizedBox(height: size.height * 0.02),
                   _buildTextField(
                     icon: Icons.email,
                     hintText: 'Email',
                     size: size,
                   ),
-                  SizedBox(height: size.height * 0.03),
+                  SizedBox(height: size.height * 0.02),
+                  _buildTextField(
+                    icon: Icons.contact_mail,
+                    hintText: 'Phone Number',
+                    size: size,
+                  ),
+                  SizedBox(height: size.height * 0.02),
+                  _buildTextField(
+                    icon: Icons.calculate,
+                    hintText: 'Age',
+                    size: size,
+                  ),
+                  SizedBox(height: size.height * 0.02),
                   _buildTextField(
                     icon: Icons.lock,
                     hintText: 'Password',
@@ -63,29 +79,15 @@ class LoginPage extends StatelessWidget {
                     size: size,
                   ),
                   SizedBox(height: size.height * 0.02),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Forgot Password?',
-                        style: GoogleFonts.lato(
-                          color: Colors.white,
-                          fontSize: size.width * 0.035,
-                        ),
-                      ),
-                    ),
+                  _buildTextField(
+                    icon: Icons.lock,
+                    hintText: 'Confirm Password',
+                    isPassword: true,
+                    size: size,
                   ),
                   SizedBox(height: size.height * 0.04),
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage()),
-                        (Route<dynamic> route) => false,
-                      );
-                    },
+                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.blue[800],
                       backgroundColor: Colors.white,
@@ -96,7 +98,7 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Login',
+                      'Sign Up',
                       style: GoogleFonts.lato(fontSize: size.width * 0.045),
                     ),
                   ),
@@ -105,7 +107,7 @@ class LoginPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Don't have an account? ",
+                        "Already have an account? ",
                         style: GoogleFonts.lato(
                           color: Colors.white70,
                           fontSize: size.width * 0.035,
@@ -116,10 +118,10 @@ class LoginPage extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const SignUpPage()));
+                                  builder: (context) => const LoginPage()));
                         },
                         child: Text(
-                          'Sign Up',
+                          'Login',
                           style: GoogleFonts.lato(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -128,6 +130,15 @@ class LoginPage extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+                  SizedBox(height: size.height * 0.02),
+                  Text(
+                    'By signing up, you agree to our Terms of Service and Privacy Policy',
+                    style: GoogleFonts.lato(
+                      color: Colors.white70,
+                      fontSize: size.width * 0.03,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
