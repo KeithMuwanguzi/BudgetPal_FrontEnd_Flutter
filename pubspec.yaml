@@ -38,6 +38,8 @@ dependencies:
   retrofit: '>=4.0.0 <5.0.0'
   dio:
   json_annotation: ^4.7.0
+  shared_preferences: ^2.2.3
+  provider: ^6.1.2
 
 dev_dependencies:
   retrofit_generator: '>=7.0.0 <8.0.0' 
