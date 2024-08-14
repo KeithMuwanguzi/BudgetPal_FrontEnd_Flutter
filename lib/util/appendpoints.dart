@@ -1,9 +1,10 @@
 class AppEndPoints {
-  static const String baseUrl = "https://ef6d-41-210-146-19.ngrok-free.app";
+  static const String baseUrl = "https://keithjeyson.pythonanywhere.com/";
   //auth endpoints
   static const String loginEndPoint = "/auth/login";
   // static const String logoutEndPoint = "/logout";
   static const String registerEndPoint = "/auth/register";
+  static const String logoutEndPoint = "/auth/logout";
   static const String getUsersEndPoint = "/auth/users";
   static const String getIncomeList = "/features/income";
   static const String getExpenseList = "/features/expenses";

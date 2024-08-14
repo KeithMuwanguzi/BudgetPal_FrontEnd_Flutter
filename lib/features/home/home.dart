@@ -21,7 +21,10 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.blue[800],
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle),
+            icon: const Icon(
+              Icons.account_circle,
+              color: Colors.white,
+            ),
             onPressed: () {},
           ),
         ],
