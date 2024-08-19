@@ -98,4 +98,22 @@ class AuthController with ChangeNotifier {
       return false;
     }
   }
+
+  getBalances() async {
+    _isLoading = true;
+    notifyListeners();
+    String token = await getAccessToken();
+
+    try {
+      final response = await _apiService.getTotals(token);
+      _isLoading = false;
+      notifyListeners();
+      return {'balance': response['data']['income_total']};
+    } catch (e) {
+      log('Logout error: $e');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }

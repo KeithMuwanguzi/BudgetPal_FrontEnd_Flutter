@@ -84,9 +84,9 @@ class ApiService {
     }
   }
 
-  Future<List<dynamic>> getTransactions(String token) async {
+  Future<Map<String, dynamic>> getTotals(String token) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/api/transactions/'),
+      Uri.parse('$baseUrl/features/income_analytics'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Token $token',

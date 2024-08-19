@@ -1,10 +1,40 @@
+import 'package:budgetpal/controllers/authcontroller.dart';
 import 'package:budgetpal/features/home/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String name = '';
+  String balance = '0';
+  AuthController authController = AuthController();
+  final NumberFormat formatter = NumberFormat("#,##0");
+
+  @override
+  initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var tentName = prefs.getString('name') ?? 'N/A';
+    var tents = tentName.split(' ');
+    var res = await authController.getBalances();
+    setState(() {
+      name = tents[0];
+      balance = formatter.format(res['balance']);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +98,7 @@ class HomePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Welcome back, User!',
+            'Welcome back, $name!',
             style: GoogleFonts.lato(
               color: Colors.white,
               fontSize: size.width * 0.06,
@@ -82,10 +112,10 @@ class HomePage extends StatelessWidget {
                 color: Colors.white70, fontSize: size.width * 0.04),
           ),
           Text(
-            '\$2,500.00',
+            'UGX.$balance',
             style: GoogleFonts.lato(
               color: Colors.white,
-              fontSize: size.width * 0.08,
+              fontSize: size.width * 0.06,
               fontWeight: FontWeight.bold,
             ),
           ),
