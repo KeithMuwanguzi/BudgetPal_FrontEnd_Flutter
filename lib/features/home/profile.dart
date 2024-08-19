@@ -137,12 +137,23 @@ class _ProfilePageState extends State<ProfilePage> {
             // TODO: Implement help & support
           }),
           _buildSettingsTile(Icons.exit_to_app, 'Logout', () async {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            );
             // Implement logout
             AuthController authController = AuthController();
             bool success = await authController.logout();
             if (success) {
+              Navigator.pop(context);
               Navigator.of(context).pushReplacementNamed('/login');
             } else {
+              Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                     content: Text('Failed to logout. Please try again.')),

@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
 
   _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var tentName = prefs.getString('name') ?? 'N/A';
+    var tentName = prefs.getString('name') ?? '--';
     var tents = tentName.split(' ');
     var res = await authController.getBalances();
     setState(() {

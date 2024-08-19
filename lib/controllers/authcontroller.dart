@@ -27,6 +27,14 @@ class AuthController with ChangeNotifier {
     await prefs.setString("phone", phone);
   }
 
+  removeUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove("name");
+    await prefs.remove("phone");
+    await prefs.remove("age");
+    await prefs.remove("email");
+  }
+
   getAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey(ACCESS_TOKEN)) {
@@ -88,6 +96,7 @@ class AuthController with ChangeNotifier {
     try {
       await _apiService.logout();
       await removeAccessToken();
+      await removeUserData();
       _isLoading = false;
       notifyListeners();
       return true;

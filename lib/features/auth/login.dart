@@ -4,7 +4,6 @@ import 'package:budgetpal/controllers/authcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:budgetpal/features/auth/signup.dart';
-import 'package:budgetpal/features/home/home.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -276,10 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                 "Invalid credentials, check your email and password and try again!"),
           ));
         } else {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) {
-            return const HomePage();
-          }));
+          Navigator.of(context).pushReplacementNamed('/home');
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

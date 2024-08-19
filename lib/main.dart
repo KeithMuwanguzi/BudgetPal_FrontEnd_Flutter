@@ -94,6 +94,7 @@ class _MyAppState extends State<MyApp> {
                   ),
         routes: {
           '/login': (context) => const LoginPage(),
+          '/home': (context) => const HomePage(),
         },
       ),
     );
