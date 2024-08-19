@@ -1,4 +1,5 @@
 // ignore: unused_import
+import 'package:budgetpal/controllers/authcontroller.dart';
 import 'package:budgetpal/features/auth/login.dart';
 import 'package:budgetpal/features/home/welcome.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,12 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => AuthController(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -32,8 +38,7 @@ class _MyAppState extends State<MyApp> {
     setValue().then((isFirstLaunch) {
       setState(() {
         this.isFirstLaunch = isFirstLaunch;
-        isLoading =
-            false; // Set loading to false once the operation is complete
+        isLoading = false;
       });
     });
   }

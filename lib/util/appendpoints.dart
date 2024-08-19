@@ -1,7 +1,7 @@
 class AppEndPoints {
-  static const String baseUrl = "https://keithjeyson.pythonanywhere.com/";
+  static const String baseUrl = "https://keithjeyson.pythonanywhere.com";
   //auth endpoints
-  static const String loginEndPoint = "/auth/login";
+  static const String loginEndPoint = "/auth/login/";
   // static const String logoutEndPoint = "/logout";
   static const String registerEndPoint = "/auth/register";
   static const String logoutEndPoint = "/auth/logout";
