@@ -19,12 +19,12 @@ class AuthController with ChangeNotifier {
     await prefs.setString(ACCESS_TOKEN, accessToken);
   }
 
-  saveUserDetails(String name, String email, String role, int id) async {
+  saveUserDetails(String name, String email, String phone, int age) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString("id", id.toString());
+    await prefs.setString("age", age.toString());
     await prefs.setString("name", name);
     await prefs.setString("email", email);
-    await prefs.setString("role", role);
+    await prefs.setString("phone", phone);
   }
 
   getAccessToken() async {
@@ -49,6 +49,11 @@ class AuthController with ChangeNotifier {
       accessToken = response['data']['token'];
       log(accessToken.toString());
       saveAccessToken(accessToken.toString());
+      saveUserDetails(
+          response['data']['data']['name'],
+          response['data']['data']['email'],
+          response['data']['data']['phone_number'],
+          response['data']['data']['age']);
       _isLoading = false;
       notifyListeners();
       return true;

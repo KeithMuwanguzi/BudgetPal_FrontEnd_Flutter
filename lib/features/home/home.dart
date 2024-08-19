@@ -1,9 +1,7 @@
-import 'package:budgetpal/controllers/authcontroller.dart';
-import 'package:budgetpal/features/auth/login.dart';
+import 'package:budgetpal/features/home/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -11,7 +9,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    final authController = Provider.of<AuthController>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -30,18 +27,10 @@ class HomePage extends StatelessWidget {
               color: Colors.white,
             ),
             onPressed: () async {
-              final result = await authController.logout();
-              if (result) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                  (Route<dynamic> route) => false,
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Failed to logout"),
-                ));
-              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
             },
           ),
         ],
