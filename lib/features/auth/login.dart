@@ -233,17 +233,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // void _submitForm({required String email, required String password}) {
-  //   if (_formKey.currentState!.validate()) {
-  //     login();
-  //     Navigator.pushAndRemoveUntil(
-  //       context,
-  //       MaterialPageRoute(builder: (context) => const HomePage()),
-  //       (Route<dynamic> route) => false,
-  //     );
-  //   }
-  // }
-
   Future<void> _submitForm() async {
     if (_formKey.currentState?.validate() ?? false) {
       String email = _emailController.text;

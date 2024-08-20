@@ -66,7 +66,7 @@ class ApiService {
   Future<Map<String, dynamic>> register(
       String email, String password, String name, String phone, int age) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/register/'),
+      Uri.parse('$baseUrl/auth/register/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

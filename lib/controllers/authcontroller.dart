@@ -72,22 +72,38 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  // Future<bool> register(String email, String password, String fullName) async {
-  //   _isLoading = true;
-  //   notifyListeners();
+  Future<bool> register(
+      String email, String password, String name, String phone, int age) async {
+    _isLoading = true;
+    notifyListeners();
 
-  //   try {
-  //     final response = await _apiService.register(email, password, fullName);
-  //     _token = response['token'];
-  //     _isLoading = false;
-  //     notifyListeners();
-  //     return true;
-  //   } catch (e) {
-  //     _isLoading = false;
-  //     notifyListeners();
-  //     return false;
-  //   }
-  // }
+    try {
+      final response =
+          await _apiService.register(email, password, name, phone, age);
+      if (response['status'] != 'error') {
+        accessToken = response['data']['token'];
+        log(accessToken.toString());
+        saveAccessToken(accessToken.toString());
+        saveUserDetails(
+            response['data']['data']['name'],
+            response['data']['data']['email'],
+            response['data']['data']['phone_number'],
+            response['data']['data']['age']);
+
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 
   Future<bool> logout() async {
     _isLoading = true;
