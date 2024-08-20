@@ -64,20 +64,22 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> register(
-      String email, String password, String fullName) async {
+      String email, String password, String name, String phone, int age) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/register/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{
+      body: jsonEncode(<String, dynamic>{
+        'name': name,
         'email': email,
         'password': password,
-        'full_name': fullName,
+        'phone_number': phone,
+        'age': age
       }),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to register');
@@ -100,10 +102,26 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> addTransaction(
+  Future<Map<String, dynamic>> getIncomes(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/features/income'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load transactions');
+    }
+  }
+
+  Future<Map<String, dynamic>> addIncome(
       String token, Map<String, dynamic> transactionData) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/transactions/'),
+      Uri.parse('$baseUrl/features/add_income/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Token $token',
@@ -111,12 +129,29 @@ class ApiService {
       body: jsonEncode(transactionData),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      var res = jsonDecode(response.body);
+      throw Exception("Failed to add transaction, ${res['error']}");
+    }
+  }
+
+  Future<Map<String, dynamic>> addExpense(
+      String token, Map<String, dynamic> expenseData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/transactions/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Token $token',
+      },
+      body: jsonEncode(expenseData),
+    );
+
+    if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to add transaction');
     }
   }
-
-  // Add more methods for other API endpoints as needed
 }

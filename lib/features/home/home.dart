@@ -1,5 +1,11 @@
 import 'package:budgetpal/controllers/authcontroller.dart';
-import 'package:budgetpal/features/home/profile.dart';
+import 'package:budgetpal/features/income/add_income_page.dart';
+import 'package:budgetpal/features/income/income_page.dart';
+import 'package:budgetpal/features/expenses/expenses_page.dart';
+import 'package:budgetpal/features/goals/goals_page.dart';
+import 'package:budgetpal/features/budget/budget_page.dart';
+import 'package:budgetpal/features/reports/reports_page.dart';
+import 'package:budgetpal/features/settings/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -18,11 +24,13 @@ class _HomePageState extends State<HomePage> {
   String balance = '0';
   AuthController authController = AuthController();
   final NumberFormat formatter = NumberFormat("#,##0");
+  List<Map<String, dynamic>> recentTransactions = [];
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     _loadUserData();
+    _loadRecentTransactions();
   }
 
   _loadUserData() async {
@@ -33,6 +41,32 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       name = tents[0];
       balance = formatter.format(res['balance']);
+    });
+  }
+
+  _loadRecentTransactions() async {
+    // This would typically be a call to your backend or local database
+    setState(() {
+      recentTransactions = [
+        {
+          'title': 'Grocery Shopping',
+          'amount': -50000,
+          'icon': Icons.shopping_cart,
+          'color': Colors.red
+        },
+        {
+          'title': 'Salary',
+          'amount': 2000000,
+          'icon': Icons.attach_money,
+          'color': Colors.green
+        },
+        {
+          'title': 'Electricity Bill',
+          'amount': -80000,
+          'icon': Icons.flash_on,
+          'color': Colors.orange
+        },
+      ];
     });
   }
 
@@ -53,33 +87,131 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: const Icon(
-              Icons.account_circle,
+              Icons.notifications,
               color: Colors.white,
             ),
-            onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
+            onPressed: () {
+              // TODO: Implement notifications
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(size),
-            _buildQuickActions(size),
-            _buildSpendingOverview(size),
-            _buildRecentTransactions(size),
-          ],
+      drawer: _buildDrawer(context),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await _loadUserData();
+          await _loadRecentTransactions();
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(size),
+              _buildQuickActions(size),
+              _buildSpendingOverview(size),
+              _buildRecentTransactions(size),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue[800],
-        onPressed: () {},
-        child: const Icon(Icons.add),
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue[800],
+            ),
+            child: Text(
+              'BudgetPal',
+              style: GoogleFonts.lato(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Home'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.attach_money),
+            title: const Text('Income'),
+            onTap: () async {
+              Navigator.pop(context);
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const IncomesPage()),
+              );
+
+              if (result) {
+                _loadUserData();
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.money_off),
+            title: const Text('Expenses'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ExpensesPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.flag),
+            title: const Text('Goals'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const GoalsPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.pie_chart),
+            title: const Text('Budget'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BudgetPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.bar_chart),
+            title: const Text('Reports'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ReportsPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -141,10 +273,27 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildActionButton(size, Icons.add, 'Add Income', Colors.green),
-              _buildActionButton(size, Icons.remove, 'Add Expense', Colors.red),
+              _buildActionButton(size, Icons.add, 'Add Income', Colors.green,
+                  () async {
+                final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AddIncomePage()));
+                if (result) {
+                  _loadUserData();
+                }
+              }),
+              _buildActionButton(size, Icons.remove, 'Add Expense', Colors.red,
+                  () {
+                _showAddTransactionDialog(context, isIncome: false);
+              }),
               _buildActionButton(
-                  size, Icons.pie_chart, 'View Budget', Colors.orange),
+                  size, Icons.pie_chart, 'View Budget', Colors.orange, () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BudgetPage()),
+                );
+              }),
             ],
           ),
         ],
@@ -152,12 +301,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildActionButton(
-      Size size, IconData icon, String label, Color color) {
+  Widget _buildActionButton(Size size, IconData icon, String label, Color color,
+      VoidCallback onPressed) {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: () {},
+          onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: color,
             shape: const CircleBorder(),
@@ -185,7 +334,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 20),
-          Container(
+          SizedBox(
             height: size.height * 0.3,
             child: PieChart(
               PieChartData(
@@ -257,19 +406,27 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 10),
-          _buildTransactionItem(size, 'Grocery Shopping', '-\$50.00',
-              Icons.shopping_cart, Colors.red),
-          _buildTransactionItem(
-              size, 'Salary', '+\$2000.00', Icons.attach_money, Colors.green),
-          _buildTransactionItem(size, 'Electricity Bill', '-\$80.00',
-              Icons.flash_on, Colors.orange),
+          ...recentTransactions
+              .map((transaction) => _buildTransactionItem(
+                  size,
+                  transaction['title'],
+                  transaction['amount'],
+                  transaction['icon'],
+                  transaction['color']))
+              .toList(),
+          TextButton(
+            onPressed: () {
+              // TODO: Navigate to full transaction history
+            },
+            child: const Text('View All Transactions'),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildTransactionItem(
-      Size size, String title, String amount, IconData icon, Color color) {
+      Size size, String title, int amount, IconData icon, Color color) {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: color.withOpacity(0.2),
@@ -277,12 +434,52 @@ class _HomePageState extends State<HomePage> {
       ),
       title: Text(title, style: GoogleFonts.lato(fontWeight: FontWeight.bold)),
       trailing: Text(
-        amount,
+        '${amount > 0 ? '+' : ''}${formatter.format(amount)}',
         style: GoogleFonts.lato(
           fontWeight: FontWeight.bold,
-          color: amount.startsWith('+') ? Colors.green : Colors.red,
+          color: amount > 0 ? Colors.green : Colors.red,
         ),
       ),
+    );
+  }
+
+  void _showAddTransactionDialog(BuildContext context, {bool isIncome = true}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(isIncome ? 'Add Income' : 'Add Expense'),
+          content: const SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                TextField(
+                  decoration: InputDecoration(hintText: "Title"),
+                ),
+                TextField(
+                  decoration: InputDecoration(hintText: "Amount"),
+                  keyboardType: TextInputType.number,
+                ),
+                // Add more fields as needed (e.g., date, category)
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Add'),
+              onPressed: () {
+                // TODO: Implement adding transaction
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
