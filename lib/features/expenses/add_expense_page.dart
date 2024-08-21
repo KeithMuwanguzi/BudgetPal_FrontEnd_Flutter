@@ -5,14 +5,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:budgetpal/controllers/authcontroller.dart';
 
-class AddIncomePage extends StatefulWidget {
-  const AddIncomePage({super.key});
+class AddExpensePage extends StatefulWidget {
+  const AddExpensePage({super.key});
 
   @override
-  State<AddIncomePage> createState() => _AddIncomePageState();
+  State<AddExpensePage> createState() => _AddExpensePageState();
 }
 
-class _AddIncomePageState extends State<AddIncomePage> {
+class _AddExpensePageState extends State<AddExpensePage> {
   final _formKey = GlobalKey<FormState>();
   final AuthController _authController = AuthController();
 
@@ -62,7 +62,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await _authController.addIncome({
+        await _authController.addExpense({
           'amount': double.parse(_amountController.text),
           'date': _dateController.text,
           'category': _categoryController.text,
@@ -95,7 +95,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
             },
             icon: const Icon(Icons.arrow_back, color: Colors.white)),
         title: Text(
-          'Add Income',
+          'Add Expense',
           style: GoogleFonts.lato(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -262,7 +262,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                       ),
                     ),
                     child: const Text(
-                      'Add Income',
+                      'Add Expense',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

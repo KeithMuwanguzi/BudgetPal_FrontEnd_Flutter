@@ -164,6 +164,28 @@ class AuthController with ChangeNotifier {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getExpenses() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      Map<String, dynamic> response = await ApiService().getExpenses(token);
+
+      if (response['message'] == 'All expense items fetched') {
+        return List<Map<String, dynamic>>.from(response['data']);
+      } else {
+        throw Exception('Failed to fetch expenses');
+      }
+    } catch (e) {
+      print('Error fetching expenses: $e');
+      return [];
+    }
+  }
+
   // In authcontroller.dart
 
   Future<void> addIncome(Map<String, dynamic> incomeData) async {
@@ -178,6 +200,22 @@ class AuthController with ChangeNotifier {
       await ApiService().addIncome(token, incomeData);
     } catch (e) {
       print('Error adding income: $e');
+      throw e;
+    }
+  }
+
+  Future<void> addExpense(Map<String, dynamic> expenseData) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      await ApiService().addExpense(token, expenseData);
+    } catch (e) {
+      print('Error adding expense: $e');
       throw e;
     }
   }

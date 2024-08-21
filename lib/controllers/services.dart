@@ -156,7 +156,7 @@ class ApiService {
   Future<Map<String, dynamic>> addExpense(
       String token, Map<String, dynamic> expenseData) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/transactions/'),
+      Uri.parse('$baseUrl/features/add_expense/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Token $token',

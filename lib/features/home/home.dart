@@ -1,4 +1,5 @@
 import 'package:budgetpal/controllers/authcontroller.dart';
+import 'package:budgetpal/features/expenses/add_expense_page.dart';
 import 'package:budgetpal/features/income/add_income_page.dart';
 import 'package:budgetpal/features/income/income_page.dart';
 import 'package:budgetpal/features/expenses/expenses_page.dart';
@@ -284,8 +285,14 @@ class _HomePageState extends State<HomePage> {
                 }
               }),
               _buildActionButton(size, Icons.remove, 'Add Expense', Colors.red,
-                  () {
-                _showAddTransactionDialog(context, isIncome: false);
+                  () async {
+                final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AddExpensePage()));
+                if (result) {
+                  _loadUserData();
+                }
               }),
               _buildActionButton(
                   size, Icons.pie_chart, 'View Budget', Colors.orange, () {
