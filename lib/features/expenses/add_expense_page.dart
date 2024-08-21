@@ -1,5 +1,4 @@
-// in add_income_page.dart
-
+import 'package:budgetpal/controllers/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -15,19 +14,25 @@ class AddExpensePage extends StatefulWidget {
 class _AddExpensePageState extends State<AddExpensePage> {
   final _formKey = GlobalKey<FormState>();
   final AuthController _authController = AuthController();
+  late Transactions transactions;
 
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
+  String? _selectedCategory;
   DateTime _selectedDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    transactions = Transactions();
+  }
 
   @override
   void dispose() {
     _amountController.dispose();
     _dateController.dispose();
-    _categoryController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -59,18 +64,29 @@ class _AddExpensePageState extends State<AddExpensePage> {
     }
   }
 
+  void _onAddTransaction(Transaction transaction) {
+    transactions.addTransaction(transaction);
+  }
+
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
         await _authController.addExpense({
           'amount': double.parse(_amountController.text),
           'date': _dateController.text,
-          'category': _categoryController.text,
+          'category': _selectedCategory,
           'description': _descriptionController.text,
         });
-
+        _onAddTransaction(Transaction(
+            title: _selectedCategory.toString(),
+            amount: double.parse(_amountController.text),
+            date: DateTime.now(),
+            isIncome: false));
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Income added successfully')),
+          const SnackBar(
+            content: Text('Expense added successfully'),
+            backgroundColor: Colors.green,
+          ),
         );
 
         Navigator.pop(context, true);
@@ -78,7 +94,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
         print('Error adding income: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to add income. Please try again.'),
+            content: Text('Failed to add expense. Please try again.'),
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -87,13 +104,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context, true);
-            },
-            icon: const Icon(Icons.arrow_back, color: Colors.white)),
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+        ),
         title: Text(
           'Add Expense',
           style: GoogleFonts.lato(
@@ -105,7 +125,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: EdgeInsets.all(size.width * 0.06),
           child: Form(
             key: _formKey,
             child: Column(
@@ -117,14 +137,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     labelText: 'Amount',
                     prefixText: 'UGX ',
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(size.width * 0.02),
                       borderSide: const BorderSide(
                         color: Colors.grey,
                         width: 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(size.width * 0.02),
                       borderSide: const BorderSide(
                         color: Colors.blue,
                         width: 2.0,
@@ -143,25 +163,25 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     return null;
                   },
                   style: GoogleFonts.lato(
-                    fontSize: 16.0,
+                    fontSize: size.width * 0.04,
                     fontWeight: FontWeight.normal,
                     color: Colors.black,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: size.height * 0.02),
                 TextFormField(
                   controller: _dateController,
                   decoration: InputDecoration(
                     labelText: 'Date',
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(size.width * 0.02),
                       borderSide: const BorderSide(
                         color: Colors.grey,
                         width: 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(size.width * 0.02),
                       borderSide: const BorderSide(
                         color: Colors.blue,
                         width: 2.0,
@@ -178,57 +198,76 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     return null;
                   },
                   style: GoogleFonts.lato(
-                    fontSize: 16.0,
+                    fontSize: size.width * 0.04,
                     fontWeight: FontWeight.normal,
                     color: Colors.black,
                   ),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _categoryController,
+                SizedBox(height: size.height * 0.02),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
                   decoration: InputDecoration(
                     labelText: 'Category',
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(size.width * 0.02),
                       borderSide: const BorderSide(
                         color: Colors.grey,
                         width: 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(size.width * 0.02),
                       borderSide: const BorderSide(
                         color: Colors.blue,
                         width: 2.0,
                       ),
                     ),
                   ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Necessities',
+                      child: Text('Necessities'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Leisure',
+                      child: Text('Leisure'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Others',
+                      child: Text('Others'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCategory = value;
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a category';
+                      return 'Please select a category';
                     }
                     return null;
                   },
                   style: GoogleFonts.lato(
-                    fontSize: 16.0,
+                    fontSize: size.width * 0.04,
                     fontWeight: FontWeight.normal,
                     color: Colors.black,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: size.height * 0.02),
                 TextFormField(
                   controller: _descriptionController,
                   decoration: InputDecoration(
                     labelText: 'Description (Optional)',
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(size.width * 0.02),
                       borderSide: const BorderSide(
                         color: Colors.grey,
                         width: 1.0,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(size.width * 0.02),
                       borderSide: const BorderSide(
                         color: Colors.blue,
                         width: 2.0,
@@ -237,26 +276,26 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   ),
                   maxLines: 3,
                   style: GoogleFonts.lato(
-                    fontSize: 16.0,
+                    fontSize: size.width * 0.04,
                     fontWeight: FontWeight.normal,
                     color: Colors.black,
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: size.height * 0.03),
                 Center(
                   child: ElevatedButton(
                     onPressed: _submitForm,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[800],
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32.0,
-                        vertical: 16.0,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: size.width * 0.08,
+                        vertical: size.height * 0.02,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(size.width * 0.02),
                       ),
                       textStyle: GoogleFonts.lato(
-                        fontSize: 18.0,
+                        fontSize: size.width * 0.045,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),

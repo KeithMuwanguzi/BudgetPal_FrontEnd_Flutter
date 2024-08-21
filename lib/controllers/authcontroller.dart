@@ -164,6 +164,28 @@ class AuthController with ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>> getExpTotals() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      Map<String, dynamic> response = await ApiService().getExpTotals(token);
+
+      if (response['message'] == 'Analytics fetched') {
+        return {'status': 'success', 'data': response['data']};
+      } else {
+        throw Exception('Failed to fetch analytics');
+      }
+    } catch (e) {
+      log('Error fetching analytics: $e');
+      return {'status': 'error', 'error': e};
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getExpenses() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();

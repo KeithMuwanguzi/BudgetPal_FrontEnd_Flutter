@@ -102,6 +102,22 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> getExpTotals(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/features/exp_analytics'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load transactions');
+    }
+  }
+
   Future<Map<String, dynamic>> getIncomes(String token) async {
     final response = await http.get(
       Uri.parse('$baseUrl/features/income'),

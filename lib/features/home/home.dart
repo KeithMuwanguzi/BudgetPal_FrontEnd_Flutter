@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:budgetpal/controllers/authcontroller.dart';
+import 'package:budgetpal/controllers/transactions.dart';
 import 'package:budgetpal/features/expenses/add_expense_page.dart';
 import 'package:budgetpal/features/income/add_income_page.dart';
 import 'package:budgetpal/features/income/income_page.dart';
@@ -21,17 +24,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late Transactions transactions;
+  List<Transaction> recentTransactions = [];
+
   String name = '';
   String balance = '0';
+  var expData = {};
   AuthController authController = AuthController();
   final NumberFormat formatter = NumberFormat("#,##0");
-  List<Map<String, dynamic>> recentTransactions = [];
 
   @override
   void initState() {
     super.initState();
+    transactions = Transactions();
+    _loadRecentTransactions();
     _loadUserData();
     _loadRecentTransactions();
+    log(recentTransactions.toString());
+  }
+
+  void _loadRecentTransactions() {
+    setState(() {
+      recentTransactions = transactions.getRecentTransactions(1);
+    });
   }
 
   _loadUserData() async {
@@ -39,35 +54,12 @@ class _HomePageState extends State<HomePage> {
     var tentName = prefs.getString('name') ?? '--';
     var tents = tentName.split(' ');
     var res = await authController.getBalances();
+    var data = await authController.getExpTotals();
+    log(data.toString());
     setState(() {
       name = tents[0];
       balance = formatter.format(res['balance']);
-    });
-  }
-
-  _loadRecentTransactions() async {
-    // This would typically be a call to your backend or local database
-    setState(() {
-      recentTransactions = [
-        {
-          'title': 'Grocery Shopping',
-          'amount': -50000,
-          'icon': Icons.shopping_cart,
-          'color': Colors.red
-        },
-        {
-          'title': 'Salary',
-          'amount': 2000000,
-          'icon': Icons.attach_money,
-          'color': Colors.green
-        },
-        {
-          'title': 'Electricity Bill',
-          'amount': -80000,
-          'icon': Icons.flash_on,
-          'color': Colors.orange
-        },
-      ];
+      expData = data['data'];
     });
   }
 
@@ -101,7 +93,7 @@ class _HomePageState extends State<HomePage> {
       body: RefreshIndicator(
         onRefresh: () async {
           await _loadUserData();
-          await _loadRecentTransactions();
+          _loadRecentTransactions();
         },
         child: SingleChildScrollView(
           child: Column(
@@ -110,7 +102,7 @@ class _HomePageState extends State<HomePage> {
               _buildHeader(size),
               _buildQuickActions(size),
               _buildSpendingOverview(size),
-              _buildRecentTransactions(size),
+              _buildRecentTransactions(),
             ],
           ),
         ),
@@ -154,18 +146,24 @@ class _HomePageState extends State<HomePage> {
 
               if (result) {
                 _loadUserData();
+                _loadRecentTransactions();
               }
             },
           ),
           ListTile(
             leading: const Icon(Icons.money_off),
             title: const Text('Expenses'),
-            onTap: () {
+            onTap: () async {
               Navigator.pop(context);
-              Navigator.push(
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ExpensesPage()),
               );
+
+              if (result) {
+                _loadUserData();
+                _loadRecentTransactions();
+              }
             },
           ),
           ListTile(
@@ -282,6 +280,7 @@ class _HomePageState extends State<HomePage> {
                         builder: (context) => const AddIncomePage()));
                 if (result) {
                   _loadUserData();
+                  _loadRecentTransactions();
                 }
               }),
               _buildActionButton(size, Icons.remove, 'Add Expense', Colors.red,
@@ -292,6 +291,7 @@ class _HomePageState extends State<HomePage> {
                         builder: (context) => const AddExpensePage()));
                 if (result) {
                   _loadUserData();
+                  _loadRecentTransactions();
                 }
               }),
               _buildActionButton(
@@ -328,6 +328,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildSpendingOverview(Size size) {
+    double necessities = (expData['necessities'] ?? 0).toDouble();
+    double leisure = (expData['leisure'] ?? 0).toDouble();
+    double others = (expData['others'] ?? 0).toDouble();
+    double total =
+        (expData['expenditure'] ?? 1).toDouble(); // Avoid division by zero
+
+    // If total is 0, set each section to 0
+    double necessitiesPercentage = total > 0 ? (necessities / total) * 100 : 0;
+    double leisurePercentage = total > 0 ? (leisure / total) * 100 : 0;
+    double othersPercentage = total > 0 ? (others / total) * 100 : 0;
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -348,8 +359,8 @@ class _HomePageState extends State<HomePage> {
                 sections: [
                   PieChartSectionData(
                     color: Colors.blue,
-                    value: 40,
-                    title: '40%',
+                    value: necessitiesPercentage,
+                    title: '${necessitiesPercentage.toStringAsFixed(1)}%',
                     radius: 50,
                     titleStyle: GoogleFonts.lato(
                       fontSize: 16,
@@ -359,8 +370,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   PieChartSectionData(
                     color: Colors.green,
-                    value: 30,
-                    title: '30%',
+                    value: leisurePercentage,
+                    title: '${leisurePercentage.toStringAsFixed(1)}%',
                     radius: 50,
                     titleStyle: GoogleFonts.lato(
                       fontSize: 16,
@@ -370,19 +381,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   PieChartSectionData(
                     color: Colors.red,
-                    value: 15,
-                    title: '15%',
-                    radius: 50,
-                    titleStyle: GoogleFonts.lato(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  PieChartSectionData(
-                    color: Colors.yellow,
-                    value: 15,
-                    title: '15%',
+                    value: othersPercentage,
+                    title: '${othersPercentage.toStringAsFixed(1)}%',
                     radius: 50,
                     titleStyle: GoogleFonts.lato(
                       fontSize: 16,
@@ -394,99 +394,74 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          _buildLegend(),
         ],
       ),
     );
   }
 
-  Widget _buildRecentTransactions(Size size) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Recent Transactions',
-            style: GoogleFonts.lato(
-              fontSize: size.width * 0.05,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 10),
-          ...recentTransactions
-              .map((transaction) => _buildTransactionItem(
-                  size,
-                  transaction['title'],
-                  transaction['amount'],
-                  transaction['icon'],
-                  transaction['color']))
-              .toList(),
-          TextButton(
-            onPressed: () {
-              // TODO: Navigate to full transaction history
-            },
-            child: const Text('View All Transactions'),
-          ),
-        ],
-      ),
+  Widget _buildLegend() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildLegendItem('Necessities', Colors.blue),
+        _buildLegendItem('Leisure', Colors.green),
+        _buildLegendItem('Others', Colors.red),
+      ],
     );
   }
 
-  Widget _buildTransactionItem(
-      Size size, String title, int amount, IconData icon, Color color) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: color.withOpacity(0.2),
-        child: Icon(icon, color: color),
-      ),
-      title: Text(title, style: GoogleFonts.lato(fontWeight: FontWeight.bold)),
-      trailing: Text(
-        '${amount > 0 ? '+' : ''}${formatter.format(amount)}',
-        style: GoogleFonts.lato(
-          fontWeight: FontWeight.bold,
-          color: amount > 0 ? Colors.green : Colors.red,
+  Widget _buildLegendItem(String title, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          color: color,
         ),
-      ),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: GoogleFonts.lato(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 
-  void _showAddTransactionDialog(BuildContext context, {bool isIncome = true}) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(isIncome ? 'Add Income' : 'Add Expense'),
-          content: const SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                TextField(
-                  decoration: InputDecoration(hintText: "Title"),
-                ),
-                TextField(
-                  decoration: InputDecoration(hintText: "Amount"),
-                  keyboardType: TextInputType.number,
-                ),
-                // Add more fields as needed (e.g., date, category)
-              ],
-            ),
+  Widget _buildRecentTransactions() {
+    if (recentTransactions.isEmpty) {
+      return const Center(child: Text('No transactions available.'));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.0),
+          child: Text(
+            'Recent Transactions',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+        ),
+        ...recentTransactions.map((tx) {
+          return ListTile(
+            leading:
+                Icon(tx.isIncome ? Icons.attach_money : Icons.shopping_cart),
+            title: Text(tx.title),
+            subtitle: Text(DateFormat('yyyy-MM-dd – kk:mm').format(tx.date)),
+            trailing: Text(
+              '${tx.amount.toStringAsFixed(2)} UGX',
+              style: TextStyle(
+                color: tx.isIncome ? Colors.green : Colors.red,
+              ),
             ),
-            TextButton(
-              child: const Text('Add'),
-              onPressed: () {
-                // TODO: Implement adding transaction
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+          );
+        }).toList(),
+      ],
     );
   }
 }
