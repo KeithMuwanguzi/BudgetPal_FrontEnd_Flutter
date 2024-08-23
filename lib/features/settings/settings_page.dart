@@ -36,8 +36,22 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile',
-            style: GoogleFonts.lato(fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+        ),
+        title: Text(
+          'Profile',
+          style: GoogleFonts.lato(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         backgroundColor: Colors.blue[800],
       ),
       body: SingleChildScrollView(

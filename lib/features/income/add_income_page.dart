@@ -1,5 +1,6 @@
 // in add_income_page.dart
 
+import 'package:budgetpal/controllers/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -22,14 +23,21 @@ class _AddIncomePageState extends State<AddIncomePage> {
   final TextEditingController _descriptionController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
+  late Transactions transactions;
+
+  // @override
+  // void dispose() {
+  //   _amountController.dispose();
+  //   _dateController.dispose();
+  //   _categoryController.dispose();
+  //   _descriptionController.dispose();
+  //   super.dispose();
+  // }
 
   @override
-  void dispose() {
-    _amountController.dispose();
-    _dateController.dispose();
-    _categoryController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    transactions = Transactions();
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -59,6 +67,10 @@ class _AddIncomePageState extends State<AddIncomePage> {
     }
   }
 
+  void _onAddTransaction(Transaction transaction) {
+    transactions.addTransaction(transaction);
+  }
+
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -68,6 +80,12 @@ class _AddIncomePageState extends State<AddIncomePage> {
           'category': _categoryController.text,
           'description': _descriptionController.text,
         });
+
+        _onAddTransaction(Transaction(
+            title: _categoryController.text.trim(),
+            amount: double.parse(_amountController.text),
+            date: DateTime.now(),
+            isIncome: true));
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Income added successfully')),

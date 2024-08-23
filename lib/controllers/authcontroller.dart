@@ -124,21 +124,28 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  getBalances() async {
-    _isLoading = true;
-    notifyListeners();
-    String token = await getAccessToken();
-
+  Future<Map<String, dynamic>> getBalances() async {
     try {
-      final response = await _apiService.getTotals(token);
-      _isLoading = false;
-      notifyListeners();
-      return {'balance': response['data']['income_total']};
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      Map<String, dynamic> response = await ApiService().getTotals(token);
+
+      if (response['message'] == 'Analytics fetched') {
+        return {
+          'status': 'success',
+          'balance': response['data']['income_total']
+        };
+      } else {
+        throw Exception('Failed to fetch analytics');
+      }
     } catch (e) {
-      log('Logout error: $e');
-      _isLoading = false;
-      notifyListeners();
-      return false;
+      log('Error fetching analytics: $e');
+      return {'status': 'error', 'error': e};
     }
   }
 

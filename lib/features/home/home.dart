@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
 
   void _loadRecentTransactions() {
     setState(() {
-      recentTransactions = transactions.getRecentTransactions(1);
+      recentTransactions = transactions.getRecentTransactions(4);
     });
   }
 
@@ -60,6 +60,7 @@ class _HomePageState extends State<HomePage> {
       name = tents[0];
       balance = formatter.format(res['balance']);
       expData = data['data'];
+      _loadRecentTransactions();
     });
   }
 
@@ -441,7 +442,7 @@ class _HomePageState extends State<HomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.0),
+          padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
           child: Text(
             'Recent Transactions',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -449,18 +450,26 @@ class _HomePageState extends State<HomePage> {
         ),
         ...recentTransactions.map((tx) {
           return ListTile(
-            leading:
-                Icon(tx.isIncome ? Icons.attach_money : Icons.shopping_cart),
-            title: Text(tx.title),
-            subtitle: Text(DateFormat('yyyy-MM-dd – kk:mm').format(tx.date)),
-            trailing: Text(
-              '${tx.amount.toStringAsFixed(2)} UGX',
-              style: TextStyle(
+              leading: Icon(
+                tx.isIncome ? Icons.attach_money : Icons.shopping_cart,
                 color: tx.isIncome ? Colors.green : Colors.red,
               ),
-            ),
-          );
-        }).toList(),
+              title: Text(tx.title),
+              subtitle: Text(DateFormat('yyyy-MM-dd – kk:mm').format(tx.date)),
+              trailing: tx.isIncome
+                  ? Text(
+                      '${tx.amount.toStringAsFixed(2)} UGX',
+                      style: const TextStyle(
+                        color: Colors.green,
+                      ),
+                    )
+                  : Text(
+                      '-${tx.amount.toStringAsFixed(2)} UGX',
+                      style: const TextStyle(
+                        color: Colors.red,
+                      ),
+                    ));
+        }),
       ],
     );
   }
