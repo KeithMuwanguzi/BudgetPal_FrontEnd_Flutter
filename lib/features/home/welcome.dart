@@ -8,6 +8,8 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -19,7 +21,7 @@ class WelcomePage extends StatelessWidget {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -27,40 +29,43 @@ class WelcomePage extends StatelessWidget {
                 Text(
                   'Welcome to BudgetPal',
                   style: GoogleFonts.lato(
-                    fontSize: 32,
+                    fontSize: size.width * 0.08,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: size.height * 0.02),
                 Text(
                   'Your personal finance companion',
                   style: GoogleFonts.lato(
-                    fontSize: 18,
+                    fontSize: size.width * 0.045,
                     color: Colors.white70,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 60),
+                SizedBox(height: size.height * 0.06),
                 _buildInfoCard(
+                  size: size,
                   icon: Icons.account_balance_wallet,
                   title: 'Track Expenses',
                   description: 'Monitor your spending habits effortlessly',
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: size.height * 0.02),
                 _buildInfoCard(
+                  size: size,
                   icon: Icons.trending_up,
                   title: 'Set Goals',
                   description: 'Plan and achieve your financial objectives',
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: size.height * 0.02),
                 _buildInfoCard(
+                  size: size,
                   icon: Icons.insights,
                   title: 'Insightful Analytics',
                   description: 'Gain valuable insights into your finances',
                 ),
-                const SizedBox(height: 60),
+                SizedBox(height: size.height * 0.06),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -71,12 +76,12 @@ class WelcomePage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.blue[800],
                     backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    textStyle: GoogleFonts.lato(fontSize: 18),
+                    padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
+                    textStyle: GoogleFonts.lato(fontSize: size.width * 0.045),
                   ),
                   child: const Text('Get Started'),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: size.height * 0.02),
                 OutlinedButton(
                   onPressed: () {
                     Navigator.push(
@@ -87,8 +92,8 @@ class WelcomePage extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     side: const BorderSide(color: Colors.white),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    textStyle: GoogleFonts.lato(fontSize: 18),
+                    padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
+                    textStyle: GoogleFonts.lato(fontSize: size.width * 0.045),
                   ),
                   child: const Text('Login'),
                 ),
@@ -100,18 +105,20 @@ class WelcomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard(
-      {required IconData icon,
-      required String title,
-      required String description}) {
+  Widget _buildInfoCard({
+    required Size size,
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
     return Card(
       color: Colors.white.withOpacity(0.9),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(size.width * 0.04),
         child: Row(
           children: [
-            Icon(icon, size: 40, color: Colors.blue[800]),
-            const SizedBox(width: 16),
+            Icon(icon, size: size.width * 0.1, color: Colors.blue[800]),
+            SizedBox(width: size.width * 0.04),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,16 +126,16 @@ class WelcomePage extends StatelessWidget {
                   Text(
                     title,
                     style: GoogleFonts.lato(
-                      fontSize: 18,
+                      fontSize: size.width * 0.045,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue[800],
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: size.height * 0.005),
                   Text(
                     description,
                     style: GoogleFonts.lato(
-                      fontSize: 14,
+                      fontSize: size.width * 0.035,
                       color: Colors.blue[800],
                     ),
                   ),
