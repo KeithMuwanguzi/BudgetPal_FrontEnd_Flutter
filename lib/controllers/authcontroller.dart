@@ -124,28 +124,25 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> getBalances() async {
+  Future<Map<String, dynamic>> getExpTotals() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
 
       if (token == null) {
-        throw Exception('No token found');
+        return {'status': 'error', 'error': 'No token found'};
       }
 
-      Map<String, dynamic> response = await ApiService().getTotals(token);
+      Map<String, dynamic> response = await ApiService().getExpTotals(token);
 
       if (response['message'] == 'Analytics fetched') {
-        return {
-          'status': 'success',
-          'balance': response['data']['income_total']
-        };
+        return {'status': 'success', 'data': response['data'] ?? []};
       } else {
-        throw Exception('Failed to fetch analytics');
+        return {'status': 'error', 'error': 'Failed to fetch analytics'};
       }
     } catch (e) {
       log('Error fetching analytics: $e');
-      return {'status': 'error', 'error': e};
+      return {'status': 'error', 'error': e.toString()};
     }
   }
 
@@ -171,25 +168,28 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> getExpTotals() async {
+  Future<Map<String, dynamic>> getBalances() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('access_token');
 
       if (token == null) {
-        throw Exception('No token found');
+        return {'status': 'error', 'error': 'No token found'};
       }
 
-      Map<String, dynamic> response = await ApiService().getExpTotals(token);
+      Map<String, dynamic> response = await ApiService().getTotals(token);
 
       if (response['message'] == 'Analytics fetched') {
-        return {'status': 'success', 'data': response['data']};
+        return {
+          'status': 'success',
+          'balance': response['data']['income_total'] ?? 0
+        };
       } else {
-        throw Exception('Failed to fetch analytics');
+        return {'status': 'error', 'error': 'Failed to fetch analytics'};
       }
     } catch (e) {
       log('Error fetching analytics: $e');
-      return {'status': 'error', 'error': e};
+      return {'status': 'error', 'error': e.toString()};
     }
   }
 

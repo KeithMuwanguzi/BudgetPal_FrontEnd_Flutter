@@ -44,6 +44,7 @@ dependencies:
   fl_chart: ^0.68.0
   http: ^1.2.2
   intl: ^0.19.0
+  percent_indicator: ^4.2.3
 
 dev_dependencies:
   retrofit_generator: '>=7.0.0 <8.0.0' 

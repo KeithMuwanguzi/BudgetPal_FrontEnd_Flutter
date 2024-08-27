@@ -87,34 +87,44 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> getTotals(String token) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/features/income_analytics'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Token $token',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/features/income_analytics'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Token $token',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load transactions');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'message': 'Failed to load transactions', 'data': null};
+      }
+    } catch (e) {
+      log('Error in getTotals: $e');
+      return {'message': 'An error occurred', 'data': null};
     }
   }
 
   Future<Map<String, dynamic>> getExpTotals(String token) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/features/exp_analytics'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Token $token',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/features/exp_analytics'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Token $token',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load transactions');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'message': 'Failed to load transactions', 'data': null};
+      }
+    } catch (e) {
+      log('Error in getExpTotals: $e');
+      return {'message': 'An error occurred', 'data': null};
     }
   }
 

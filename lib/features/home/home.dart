@@ -32,6 +32,9 @@ class _HomePageState extends State<HomePage> {
   var expData = {};
   AuthController authController = AuthController();
   final NumberFormat formatter = NumberFormat("#,##0");
+  double nec = 0.0;
+  double lei = 0.0;
+  double others = 0.0;
 
   @override
   void initState() {
@@ -50,18 +53,35 @@ class _HomePageState extends State<HomePage> {
   }
 
   _loadUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var tentName = prefs.getString('name') ?? '--';
-    var tents = tentName.split(' ');
-    var res = await authController.getBalances();
-    var data = await authController.getExpTotals();
-    log(data.toString());
-    setState(() {
-      name = tents[0];
-      balance = formatter.format(res['balance']);
-      expData = data['data'];
-      _loadRecentTransactions();
-    });
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var tentName = prefs.getString('name') ?? '--';
+      var tents = tentName.split(' ');
+
+      var res = await authController.getBalances();
+      var data = await authController.getExpTotals();
+
+      setState(() {
+        name = tents.isNotEmpty ? tents[0] : '--';
+        balance = res['status'] == 'success'
+            ? formatter.format(res['balance'] ?? 0)
+            : '0';
+        expData = data['status'] == 'success' ? data['data'] : [];
+        nec = expData['necessities'] ?? 0.0;
+        others = expData['others'] ?? 0.0;
+        lei = expData['leisure'] ?? 0.0;
+        _loadRecentTransactions();
+      });
+    } catch (e) {
+      log('Error loading user data: $e');
+      // Handle the error, maybe show a snackbar to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to load user data. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -185,7 +205,9 @@ class _HomePageState extends State<HomePage> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const BudgetPage()),
+                MaterialPageRoute(
+                    builder: (context) =>
+                        BudgetPage(nec: nec, leisure: lei, others: others)),
               );
             },
           ),
@@ -299,7 +321,9 @@ class _HomePageState extends State<HomePage> {
                   size, Icons.pie_chart, 'View Budget', Colors.orange, () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const BudgetPage()),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          BudgetPage(nec: nec, leisure: lei, others: others)),
                 );
               }),
             ],
