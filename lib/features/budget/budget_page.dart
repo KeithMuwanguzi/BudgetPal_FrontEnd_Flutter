@@ -1,5 +1,5 @@
-import 'dart:ui';
-
+import 'package:budgetpal/controllers/authcontroller.dart';
+import 'package:budgetpal/features/budget/add_budget_page.dart';
 import 'package:budgetpal/models/budget.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -24,6 +24,7 @@ class _BudgetPageState extends State<BudgetPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final NumberFormat formatter = NumberFormat("#,##0");
+  AuthController controller = AuthController();
 
   List<Budget> budgets = [];
 
@@ -31,37 +32,50 @@ class _BudgetPageState extends State<BudgetPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    budgets = setList();
+    // budgets = setList();
+
+    fetchBudgets();
   }
 
-  List<Budget> setList() {
-    List<Budget> values = [
-      Budget(
-          id: 1,
-          name: 'Groceries',
-          amount: widget.nec + 10000,
-          spent: widget.nec,
-          category: 'Necessities',
-          startDate: DateTime.now(),
-          endDate: DateTime.now().add(const Duration(days: 30))),
-      Budget(
-          id: 2,
-          name: 'Entertainment',
-          amount: widget.leisure + 20340,
-          spent: widget.leisure,
-          category: 'Leisure',
-          startDate: DateTime.now(),
-          endDate: DateTime.now().add(const Duration(days: 30))),
-      Budget(
-          id: 3,
-          name: 'Transportation',
-          amount: widget.others + 250000,
-          spent: widget.others,
-          category: 'Others',
-          startDate: DateTime.now(),
-          endDate: DateTime.now().add(const Duration(days: 30))),
-    ];
-    return values;
+  Future<void> deleteBudget(int id) async {
+    var response = await controller.deleteBudget(id);
+    if (response['status'] == 'success') {
+      fetchBudgets();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Budget deleted successfully"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("An error occurred, failed to delete budget"),
+      ));
+    }
+  }
+
+  Future<void> fetchBudgets() async {
+    try {
+      List<Map<String, dynamic>> budgetData = await controller.getBudgets();
+      setState(() {
+        budgets = budgetData.map((data) {
+          Budget budget = Budget.fromJson(data);
+          String category = budget.category;
+          if (category == 'Necessities') {
+            budget.spent = widget.nec;
+          } else if (category == 'Leisure') {
+            budget.spent = widget.leisure;
+          } else {
+            budget.spent = widget.others;
+          }
+
+          return budget;
+        }).toList();
+      });
+    } catch (e) {
+      print('Error fetching budgets: $e');
+      budgets = [];
+    }
   }
 
   @override
@@ -97,12 +111,27 @@ class _BudgetPageState extends State<BudgetPage>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildOverviewTab(size),
-          _buildDetailsTab(size),
-        ],
+      body: budgets.isEmpty
+          ? const Center(child: Text('No budgets set yet'))
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                _buildOverviewTab(size),
+                _buildDetailsTab(size),
+              ],
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddBudgetPage()),
+          );
+          if (result == true) {
+            fetchBudgets();
+          }
+        },
+        backgroundColor: Colors.blue[800],
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -327,6 +356,6 @@ class _BudgetPageState extends State<BudgetPage>
   }
 
   void _showDeleteBudgetDialog(Budget budget) {
-    // Implement delete budget dialog
+    deleteBudget(budget.id);
   }
 }

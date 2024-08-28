@@ -44,6 +44,55 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> deleteBudget(String token, int budgetId) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/features/delete_budget/$budgetId/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Token $token',
+      },
+    ).timeout(
+      const Duration(seconds: 10),
+    );
+
+    if (response.statusCode == 200) {
+      log('Budget deleted successfully');
+      return {'message': 'Budget deleted successfully'};
+    } else {
+      log('Failed to delete budget. Status code: ${response.statusCode}');
+      log('Response body: ${response.body}');
+      return {'error': 'Failed to delete budget', 'response': response.body};
+    }
+  }
+
+  // New method to edit a budget
+  Future<Map<String, dynamic>> editBudget(
+      String token, int budgetId, Map<String, dynamic> budgetData) async {
+    final response = await http
+        .put(
+          Uri.parse('$baseUrl/features/edit_budget/$budgetId/'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Token $token',
+          },
+          body: jsonEncode(budgetData),
+        )
+        .timeout(
+          const Duration(seconds: 10),
+        );
+
+    if (response.statusCode == 200) {
+      log('Budget updated successfully');
+      return jsonDecode(response.body);
+    } else {
+      log('Failed to update budget. Status code: ${response.statusCode}');
+      log('Response body: ${response.body}');
+      return {'error': 'Failed to update budget', 'response': response.body};
+    }
+  }
+
   Future<void> logout() async {
     final token = await getAccessToken();
     if (token == null) {
@@ -141,6 +190,22 @@ class ApiService {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to load transactions');
+    }
+  }
+
+  Future<Map<String, dynamic>> getBudgets(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/features/budgets'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Token $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load budgets');
     }
   }
 

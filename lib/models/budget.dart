@@ -2,7 +2,7 @@ class Budget {
   final int id;
   final String name;
   final double amount;
-  final double spent;
+  double spent;
   final String category;
   final DateTime startDate;
   final DateTime endDate;
@@ -16,6 +16,18 @@ class Budget {
     required this.startDate,
     required this.endDate,
   });
+
+  factory Budget.fromJson(Map<String, dynamic> json) {
+    return Budget(
+      id: json['id'],
+      name: json['name'],
+      amount: double.parse(json['amount']),
+      spent: 0.0,
+      category: json['category'],
+      startDate: DateTime.parse(json['start_date']),
+      endDate: DateTime.parse(json['end_date']),
+    );
+  }
 }
 
 // Goal model

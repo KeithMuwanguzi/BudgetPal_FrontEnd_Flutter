@@ -146,6 +146,53 @@ class AuthController with ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>> deleteBudget(int budgetId) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+
+      if (token == null) {
+        return {'status': 'error', 'error': 'No token found'};
+      }
+
+      Map<String, dynamic> response =
+          await ApiService().deleteBudget(token, budgetId);
+
+      if (response['message'] == 'Budget deleted successfully') {
+        return {'status': 'success', 'message': 'Budget deleted successfully'};
+      } else {
+        return {'status': 'error', 'error': 'Failed to delete budget'};
+      }
+    } catch (e) {
+      log('Error deleting budget: $e');
+      return {'status': 'error', 'error': e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> editBudget(
+      int budgetId, Map<String, dynamic> budgetData) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+
+      if (token == null) {
+        return {'status': 'error', 'error': 'No token found'};
+      }
+
+      Map<String, dynamic> response =
+          await ApiService().editBudget(token, budgetId, budgetData);
+
+      if (response.containsKey('error')) {
+        return {'status': 'error', 'error': 'Failed to update budget'};
+      } else {
+        return {'status': 'success', 'data': response};
+      }
+    } catch (e) {
+      log('Error editing budget: $e');
+      return {'status': 'error', 'error': e.toString()};
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getIncomes() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -158,6 +205,28 @@ class AuthController with ChangeNotifier {
       Map<String, dynamic> response = await ApiService().getIncomes(token);
 
       if (response['message'] == 'All income items fetched') {
+        return List<Map<String, dynamic>>.from(response['data']);
+      } else {
+        throw Exception('Failed to fetch incomes');
+      }
+    } catch (e) {
+      print('Error fetching incomes: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getBudgets() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      Map<String, dynamic> response = await ApiService().getBudgets(token);
+
+      if (response['message'] == 'All budgets fetched') {
         return List<Map<String, dynamic>>.from(response['data']);
       } else {
         throw Exception('Failed to fetch incomes');
