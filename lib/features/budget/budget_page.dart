@@ -7,14 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class BudgetPage extends StatefulWidget {
-  final double nec;
-  final double leisure;
-  final double others;
-  const BudgetPage(
-      {super.key,
-      required this.nec,
-      required this.others,
-      required this.leisure});
+  const BudgetPage({
+    super.key,
+  });
 
   @override
   State<BudgetPage> createState() => _BudgetPageState();
@@ -25,6 +20,7 @@ class _BudgetPageState extends State<BudgetPage>
   late TabController _tabController;
   final NumberFormat formatter = NumberFormat("#,##0");
   AuthController controller = AuthController();
+  bool isLoading = true;
 
   List<Budget> budgets = [];
 
@@ -59,10 +55,12 @@ class _BudgetPageState extends State<BudgetPage>
       List<Map<String, dynamic>> budgetData = await controller.getBudgets();
       setState(() {
         budgets = budgetData.map((json) => Budget.fromJson(json)).toList();
+        isLoading = false;
       });
     } catch (e) {
       print('Error fetching budgets: $e');
       budgets = [];
+      isLoading = false;
     }
   }
 
@@ -99,15 +97,17 @@ class _BudgetPageState extends State<BudgetPage>
           ],
         ),
       ),
-      body: budgets.isEmpty
-          ? const Center(child: Text('No budgets set yet'))
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildOverviewTab(size),
-                _buildDetailsTab(size),
-              ],
-            ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : budgets.isEmpty
+              ? const Center(child: Text('No budgets set yet'))
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildOverviewTab(size),
+                    _buildDetailsTab(size),
+                  ],
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push(

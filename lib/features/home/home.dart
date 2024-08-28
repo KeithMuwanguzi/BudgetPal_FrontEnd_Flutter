@@ -205,9 +205,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        BudgetPage(nec: nec, leisure: lei, others: others)),
+                MaterialPageRoute(builder: (context) => const BudgetPage()),
               );
             },
           ),
@@ -321,9 +319,7 @@ class _HomePageState extends State<HomePage> {
                   size, Icons.pie_chart, 'View Budget', Colors.orange, () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          BudgetPage(nec: nec, leisure: lei, others: others)),
+                  MaterialPageRoute(builder: (context) => const BudgetPage()),
                 );
               }),
             ],

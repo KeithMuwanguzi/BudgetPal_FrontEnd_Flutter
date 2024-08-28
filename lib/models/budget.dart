@@ -22,7 +22,7 @@ class Budget {
       id: json['id'],
       name: json['name'],
       amount: double.parse(json['amount']),
-      spent: double.parse(json['spent']),
+      spent: json['spent'].toDouble(),
       category: json['category'],
       startDate: DateTime.parse(json['start_date']),
       endDate: DateTime.parse(json['end_date']),

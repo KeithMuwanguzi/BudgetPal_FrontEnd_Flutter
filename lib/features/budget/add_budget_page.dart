@@ -127,8 +127,7 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
                 ),
                 TextFormField(
                   controller: _amountController,
-                  decoration:
-                      const InputDecoration(labelText: 'Amount (in dollars)'),
+                  decoration: const InputDecoration(labelText: 'Amount'),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
