@@ -19,6 +19,7 @@ class _BudgetPageState extends State<BudgetPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final NumberFormat formatter = NumberFormat("#,##0");
+  final DateFormat _dateFormat = DateFormat('dd-MMM-yyyy');
   AuthController controller = AuthController();
   bool isLoading = true;
 
@@ -86,6 +87,23 @@ class _BudgetPageState extends State<BudgetPage>
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AddBudgetPage()),
+                );
+                if (result == true) {
+                  fetchBudgets();
+                }
+              },
+              icon: const Icon(
+                Icons.add,
+                color: Colors.white,
+              ))
+        ],
         backgroundColor: Colors.blue[800],
         bottom: TabBar(
           controller: _tabController,
@@ -108,22 +126,6 @@ class _BudgetPageState extends State<BudgetPage>
                     _buildDetailsTab(size),
                   ],
                 ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddBudgetPage()),
-          );
-          if (result == true) {
-            fetchBudgets();
-          }
-        },
-        backgroundColor: Colors.blue[800],
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-      ),
     );
   }
 
@@ -291,7 +293,17 @@ class _BudgetPageState extends State<BudgetPage>
                     style: GoogleFonts.lato(
                       fontSize: size.width * 0.034,
                     )),
-                SizedBox(height: size.height * 0.06),
+                SizedBox(height: size.height * 0.004),
+                Text('Start Date:  ${_dateFormat.format(budget.startDate)}',
+                    style: GoogleFonts.lato(
+                      fontSize: size.width * 0.034,
+                    )),
+                SizedBox(height: size.height * 0.004),
+                Text('End Date:  ${_dateFormat.format(budget.endDate)}',
+                    style: GoogleFonts.lato(
+                      fontSize: size.width * 0.034,
+                    )),
+                SizedBox(height: size.height * 0.035),
                 LinearProgressIndicator(
                   value: budget.spent / budget.amount,
                   backgroundColor: Colors.grey[300],
