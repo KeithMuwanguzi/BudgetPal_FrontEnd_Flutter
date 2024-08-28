@@ -317,4 +317,26 @@ class AuthController with ChangeNotifier {
       throw e;
     }
   }
+
+  Future<Map<String, dynamic>> addBudget(
+      Map<String, dynamic> budgetData) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+
+      if (token == null) {
+        throw Exception('No token found');
+      }
+
+      Map<String, dynamic> response =
+          await ApiService().addBudget(token, budgetData);
+      if (response['status'] == 'success') {
+        return response;
+      } else {
+        return {'status': 'error', 'error': response['error']};
+      }
+    } catch (e) {
+      return {'status': 'error', 'error': e};
+    }
+  }
 }

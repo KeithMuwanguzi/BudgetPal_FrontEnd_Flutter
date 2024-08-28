@@ -1,4 +1,6 @@
+import 'package:budgetpal/controllers/authcontroller.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class AddBudgetPage extends StatefulWidget {
@@ -15,8 +17,9 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
   final _startDateController = TextEditingController();
   final _endDateController = TextEditingController();
   String? _selectedCategory;
+  AuthController controller = AuthController();
 
-  final List<String> _categories = ['Necessities', 'Wants', 'Savings', 'Debts'];
+  final List<String> _categories = ['Necessities', 'Leisure', 'Others'];
 
   @override
   void dispose() {
@@ -42,24 +45,37 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
     }
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       // All fields are valid, create the budget data
       final budgetData = {
-        'name': _nameController.text,
-        'amount':
-            double.parse(_amountController.text) * 100, // Convert to cents
+        'name': _nameController.text.trim(),
+        'amount': double.parse(_amountController.text.trim()),
         'start_date': _startDateController.text,
         'end_date': _endDateController.text,
         'category': _selectedCategory,
       };
 
-      print(budgetData); // For demonstration purposes
+      var response = await controller.addBudget(budgetData);
 
+      if (response['status'] == 'success') {
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Budget added successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error occured!,Budget not added'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       // Show a success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Budget added successfully')),
-      );
 
       // Clear the form
       _formKey.currentState!.reset();
@@ -77,7 +93,19 @@ class _AddBudgetPageState extends State<AddBudgetPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Budget'),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context, true);
+            },
+            icon: const Icon(Icons.arrow_back, color: Colors.white)),
+        title: Text(
+          'Add Budget',
+          style: GoogleFonts.lato(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.blue[800],
       ),
       body: SingleChildScrollView(
         child: Padding(

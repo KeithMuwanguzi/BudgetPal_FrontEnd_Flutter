@@ -261,4 +261,22 @@ class ApiService {
       throw Exception('Failed to add transaction');
     }
   }
+
+  Future<Map<String, dynamic>> addBudget(
+      String token, Map<String, dynamic> budgetData) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/features/add_budget/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Token $token',
+      },
+      body: jsonEncode(budgetData),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return jsonDecode(response.body);
+    }
+  }
 }

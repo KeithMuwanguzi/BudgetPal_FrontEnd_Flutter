@@ -58,19 +58,7 @@ class _BudgetPageState extends State<BudgetPage>
     try {
       List<Map<String, dynamic>> budgetData = await controller.getBudgets();
       setState(() {
-        budgets = budgetData.map((data) {
-          Budget budget = Budget.fromJson(data);
-          String category = budget.category;
-          if (category == 'Necessities') {
-            budget.spent = widget.nec;
-          } else if (category == 'Leisure') {
-            budget.spent = widget.leisure;
-          } else {
-            budget.spent = widget.others;
-          }
-
-          return budget;
-        }).toList();
+        budgets = budgetData.map((json) => Budget.fromJson(json)).toList();
       });
     } catch (e) {
       print('Error fetching budgets: $e');
@@ -131,7 +119,10 @@ class _BudgetPageState extends State<BudgetPage>
           }
         },
         backgroundColor: Colors.blue[800],
-        child: const Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
   }

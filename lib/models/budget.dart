@@ -2,7 +2,7 @@ class Budget {
   final int id;
   final String name;
   final double amount;
-  double spent;
+  final double spent;
   final String category;
   final DateTime startDate;
   final DateTime endDate;
@@ -22,7 +22,7 @@ class Budget {
       id: json['id'],
       name: json['name'],
       amount: double.parse(json['amount']),
-      spent: 0.0,
+      spent: double.parse(json['spent']),
       category: json['category'],
       startDate: DateTime.parse(json['start_date']),
       endDate: DateTime.parse(json['end_date']),
